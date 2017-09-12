@@ -9,16 +9,16 @@ pipeline {
         sh 'echo "hello world"'
       }
     }
-     stage('testing') {
-      steps {
-        rails test
-      }
-    }
     stage('build docker') {
       steps {
         sh '''docker build -t radhikakancharla/popcorn:$BUILD_NUMBER .
 
 '''
+      }
+    }
+    stage('testing') {
+      steps {
+        sh '''docker run radhikakancharla/popcorn:$BUILD_NUMBER rails test'''
       }
     }
     stage('docker push') {
