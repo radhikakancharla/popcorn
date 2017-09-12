@@ -1,32 +1,41 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: web
-  labels:
-    service: web
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 80
-    targetPort: 3333
-  selector:
-    web: rails
-
----
-
-apiVersion: apps/v1beta1
-kind: Deployment
-metadata:
-  name: d-web
-spec:
-  replicas: 7
-  template:
-    metadata:
-      labels:
-        web: rails
-    spec:
-      containers:
-      - name: web
-        image: radhikakancharla/popcorn:$BUILD_NUMBER
-        ports:
-        - containerPort: 3333
+pipeline {
+  agent any
+  
+  environment {
+    DOCKER_PASSWORD = credentials('DOCKER_PASSWORD')
+  }
+  
+  stages {
+    stage('greeting') {
+      steps {
+        sh '''echo "hello world"
+'''
+      }
+    }
+    stage('build docker') {
+      steps {
+        sh '''docker build -t radhikakancharla/popcorn:$BUILD_NUMBER .
+'''
+      }
+    }
+    stage('testing') {
+      steps {
+        sh '''docker run radhikakancharla/popcorn:$BUILD_NUMBER rails test
+'''
+      }
+    }
+    stage('docker push') {
+      steps {
+        sh '''docker login -u radhikakancharla -p $DOCKER_PASSWORD
+docker push radhikakancharla/popcorn:$BUILD_NUMBER
+'''
+      }
+    }
+    stage('deply to k8s') {
+      steps {
+        sh '''envsubst < deployment.yaml | kubectl apply -f -
+'''
+      }
+    }
+  }
+}
