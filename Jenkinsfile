@@ -11,7 +11,7 @@ pipeline {
     }
      stage('testing') {
       steps {
-        sh 'echo "rails test"'
+        rails test
       }
     }
     stage('build docker') {
