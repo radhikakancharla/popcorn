@@ -11,6 +11,6 @@ spec:
     spec:
       containers:
       - name: web
-        image: radhikakancharla/popcorn:12
+        image: radhikakancharla/popcorn:$BUILD_NUMBER
         ports:
         - containerPort: 3333
