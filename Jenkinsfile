@@ -9,6 +9,11 @@ pipeline {
         sh 'echo "hello world"'
       }
     }
+     stage('testing') {
+      steps {
+        sh 'echo "rails test"'
+      }
+    }
     stage('build docker') {
       steps {
         sh '''docker build -t radhikakancharla/popcorn:$BUILD_NUMBER .
